@@ -1,0 +1,6 @@
+server:
+  port: 9195
+
+hystrix:
+  dashboard:
+    proxy-stream-allow-list: localhost

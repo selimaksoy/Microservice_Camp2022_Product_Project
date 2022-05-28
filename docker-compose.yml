@@ -1,0 +1,98 @@
+version: '3'
+services:
+
+  mongo:
+    image: mongo:5.0
+    container_name: 'mongo-db'
+    ports:
+      - 27017:27017
+    networks:
+      - elastic
+    volumes:
+      - ~/apps/mongonew:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=changeme
+      - MONGO_INITDB_ROOT_PASSWORD=changeme
+    hostname: mongo
+
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: changeme
+      POSTGRES_PASSWORD: changeme
+      PGDATA: /data/postgres
+    volumes:
+      - ./postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - elastic
+    restart: unless-stopped
+
+  elastic-search:
+    image: elasticsearch:7.12.0
+    container_name: cvl_elasticsearch
+    restart: always
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+    networks:
+      - elastic
+
+  kibana:
+    image: kibana:7.12.0
+    container_name: cvl_kibana
+    restart: always
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic-search:9200
+
+    networks:
+      - elastic
+
+  logstash:
+    image: logstash:7.12.0
+    container_name: cvl_logstash
+    restart: always
+    ports:
+      - 5000:5000
+      - 5044:5044
+      - 9600:9600
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    environment:
+      - XPACK_MONITORING_ELASTICSEARCH_HOSTS=http://elastic-search:9200
+      - XPACK_MONITORING_ENABLED=true
+    networks:
+      - elastic
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - elastic
+
+  cache:
+    image: "bitnami/redis:latest"
+    container_name: redisserver
+    restart: always
+    ports:
+      - '6379:6379'
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - REDIS_PASSWORD=changeme
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    volumes:
+      - ./cache:/data
+    networks:
+      - elastic
+
+networks:
+  elastic:
+    driver: bridge

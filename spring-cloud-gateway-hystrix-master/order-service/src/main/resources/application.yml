@@ -1,0 +1,30 @@
+server:
+  port: 9192
+spring:
+  zipkin:
+    base-url: http://localhost:9411/
+
+  application:
+    name: order-service
+
+  data:
+    mongodb:
+      user: selim
+      password: S3cret
+      uri: mongodb://changeme:changeme@localhost:27017/Order?authSource=admin
+      database: Order
+      repositories:
+        enabled: true
+      auto-index-creation: false
+
+logging:
+  file:
+    name: T:/microservicelog/oms.log
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG
+        cache: TRACE
