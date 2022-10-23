@@ -1,4 +1,4 @@
-# spring-cloud-gateway-hystrix-eureka-cache(redis)-logging(elk)
+# spring-cloud-gateway - hystrix - eureka - cache(redis) - logging(elk) - zipkin - spring-cloud-sleuth - kafka - zookeper
 
 ![alt text](https://github.com/selimaksoy/Microservice_Camp2022_Product_Project/blob/master/arch_latest.png?raw=true)
 
