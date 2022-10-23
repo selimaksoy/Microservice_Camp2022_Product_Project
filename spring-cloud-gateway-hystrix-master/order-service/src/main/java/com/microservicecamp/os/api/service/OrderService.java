@@ -6,6 +6,7 @@ import com.microservicecamp.os.api.common.Payment;
 import com.microservicecamp.os.api.common.TransactionRequest;
 import com.microservicecamp.os.api.common.TransactionResponse;
 import com.microservicecamp.os.api.entity.Order;
+import com.microservicecamp.os.api.event.OrderPlacedEvent;
 import com.microservicecamp.os.api.repository.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,8 +29,17 @@ public class OrderService {
     @Lazy
     private RestTemplate template;
 
+    @Autowired
+    private KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
+
     @Value("${microservice.payment-service.endpoints.endpoint.uri}")
     private String ENDPOINT_URL;
+
+    @Value("${microservice.notification-service.kafka.topicname}")
+    private String TOPIC_NAME;
+
+    public OrderService() {
+    }
 
     public TransactionResponse saveOrder(TransactionRequest request) throws JsonProcessingException {
         String response = "";
@@ -43,6 +54,12 @@ public class OrderService {
         response = paymentResponse.getPaymentStatus().equals("success") ? "payment processing successful and order placed" : "there is a failure in payment api , order added to cart";
         logger.info("Order Service getting Response from Payment-Service : "+new ObjectMapper().writeValueAsString(response));
         repository.save(order);
+
+        //Kafka
+        kafkaTemplate.send(TOPIC_NAME, new OrderPlacedEvent(paymentResponse.getOrderId()));
+
+
+
         return new TransactionResponse(order, paymentResponse.getAmount(), paymentResponse.getTransactionId(), response);
     }
 }

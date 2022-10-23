@@ -1,0 +1,32 @@
+server:
+  port: 9197
+spring:
+  zipkin:
+    base-url: http://localhost:9411/
+
+  application:
+    name: notification-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    template:
+      default-topic: ${microservice.notification-service.kafka.topicname}
+
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        "[spring.json.type.mapping]": event:com.microservicecamp.notificationservice.event.OrderPlacedEvent
+      group-id: notificationId
+
+logging:
+  file:
+    name: T:/microservicelog/oms.log
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG
+        cache: TRACE

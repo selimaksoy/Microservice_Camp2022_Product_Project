@@ -17,6 +17,25 @@ spring:
         enabled: true
       auto-index-creation: false
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    template:
+      default-topic: ${microservice.notification-service.kafka.topicname}
+    polling.timeout: 10000
+    producer:
+      properties:
+        "[spring.json.type.mapping]": event:com.microservicecamp.os.api.event.OrderPlacedEvent
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+log4j:
+  logger:
+    org:
+      apache:
+        kafka:
+          clients:
+            producer: Error
+
 logging:
   file:
     name: T:/microservicelog/oms.log
