@@ -1,4 +1,6 @@
-# spring-cloud-gateway-hystrix
+# spring-cloud-gateway-hystrix-eureka-cache(redis)-logging(elk)
+
+![alt text](https://github.com/selimaksoy/Microservice_Camp2022_Product_Project/blob/master/arch_latest.png?raw=true)
 
 
 API-GateWay
